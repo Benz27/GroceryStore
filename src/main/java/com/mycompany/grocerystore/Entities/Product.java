@@ -4,6 +4,8 @@
  */
 package com.mycompany.grocerystore.Entities;
 
+import com.mycompany.grocerystore.Enumerators.SellingUnit;
+
 /**
  *
  * @author Benz Samson
@@ -11,7 +13,11 @@ package com.mycompany.grocerystore.Entities;
 public class Product {
     
     public String Name;
-    public String UoM;     
+    public String Code;
+    public SellingUnit SeU ;
     public float Price; 
 
+    public Product(){
+        SeU = SellingUnit.Piece;
+    }
 }

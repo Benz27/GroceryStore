@@ -4,8 +4,12 @@
  */
 package com.mycompany.grocerystore.Modules.CheckoutCounter;
 
+import com.mycompany.grocerystore.Exceptions.InvalidProductException;
 import com.mycompany.grocerystore.Entities.Product;
+import com.mycompany.grocerystore.Enumerators.Discount;
 import com.mycompany.grocerystore.Modules.Products.Rice;
+import com.mycompany.grocerystore.Modules.Store.Inventory;
+import com.mycompany.grocerystore.Modules.Store.SalesPromotion;
 
 import java.util.HashMap;
 
@@ -16,87 +20,88 @@ import java.util.HashMap;
 public class Transaction {
 
     public Purchase Purchase;
+    public Inventory Inventory;
+    public SalesPromotion SalesPromotion;
     public float GrandTotal;
-    public HashMap<String, Float> QuantitySummary;
-    public HashMap<String, Float> TotalSummary;
 
-    public HashMap<String, Float> DiscountedQuantitySummary;
-    public HashMap<String, Float> DiscountedTotalSummary;
-
+    public Summary ItemsSummary;
+    public Summary DiscountedItemsSummary;
   
 
     public Transaction() {
         Purchase = new Purchase();
-        QuantitySummary = new HashMap<>();
-        TotalSummary = new HashMap<>();
-
-        DiscountedQuantitySummary = new HashMap<>();
-        DiscountedTotalSummary = new HashMap<>();
-
+        ItemsSummary = new Summary();
+        DiscountedItemsSummary = new Summary();
+    }
+    
+    public void SetInventory(Inventory inventory){
+        Inventory = inventory;
+    }
+    
+    public void SalesPromotion(SalesPromotion salesPromotion){
+        SalesPromotion = salesPromotion;
     }
     
     
-    public void Summarize() {
-       ApplyBuyTwoGetOneFree(new Rice());
+    
+    
+    
+    public void scan(String code, float quantity) throws InvalidProductException {
+        Product product = Inventory.getProduct(code);
+        addToPurchase(new Item(product, quantity));
     }
     
-//    public float Refresh() {
-//        for (Item item : Purchase.Items) {
-//            GrandTotal += item.GetLineTotal();
-//        }
-//        return GrandTotal;
-//    }
-
-    public void scan(Item item) {
+    public void scan(String code) throws InvalidProductException {
+        scan(code, 1);
+    }
+    
+    
+    public void addToPurchase(Item item) {
         Purchase.add(item);
         GrandTotal += item.GetLineTotal();
         AddToSummary(item);
     }
 
-    public void scan(Product product) {
-        scan(new Item(product, 1));
+       
+       
+    
+    public void Finalize() throws InvalidProductException {
+       ApplyDiscounts();
     }
-
-    public void scan(Product product, float quantity) {
-        scan(new Item(product, quantity));
-    }
-
+ 
     public void AddToSummary(Item item) {
 
-        var qtySumm = QuantitySummary;
-        var totSumm = TotalSummary;
         if (item.DiscountPercent > 0) {
-            qtySumm = DiscountedQuantitySummary;
-            totSumm = DiscountedTotalSummary;
+            DiscountedItemsSummary.AddToSummaries(item);
+            return;
         }
-
-        String name = item.Product.Name;
-
-        float collectiveQuantity = item.Quantity;
-        float collectiveLineTotal = item.GetLineTotal();
-
-        if (qtySumm.containsKey(name)) {
-            collectiveQuantity += (float) qtySumm.get(name);
-            collectiveLineTotal += (float) totSumm.get(name);
-        }
-        qtySumm.put(name, collectiveQuantity);
-        totSumm.put(name, collectiveLineTotal);
+        ItemsSummary.AddToSummaries(item);
     }
 
-    
-    
-    
+    public void ApplyDiscounts() throws InvalidProductException {
+        
+        for(String code : SalesPromotion.ProductsOnDiscount.keySet()){
+            if(!ItemsSummary.QuantitySummary.containsKey(code)){
+                continue;
+            }
+            Discount discount = SalesPromotion.ProductsOnDiscount.get(code);
+            switch(discount){
+                case Discount.BuyOneGetOneFree -> ApplyBuyOneGetOneFree(Inventory.getProduct(code));
+                case Discount.BuyTwoGetOneFree -> ApplyBuyTwoGetOneFree(Inventory.getProduct(code));
+            }
+        }
+    }
     
     public void ApplyBuyOneGetOneFree(Product product) {
-        String name = product.Name;
-        scan(new Item(product, QuantitySummary.get(name) * 2, 100));
+        String code = product.Code;
+        addToPurchase(new Item(product, ItemsSummary.QuantitySummary.get(code) * 2, 100));
     }
 
     public void ApplyBuyTwoGetOneFree(Product product) {
-        String name = product.Name;
-        float quantity = QuantitySummary.get(name);
+        String code = product.Code;
+        float quantity = ItemsSummary.QuantitySummary.get(code);
         float freeQuantity = ((quantity % 2 == 0) ? quantity : quantity - 1) / 2;
-        scan(new Item(product, freeQuantity, 100));
+        addToPurchase(new Item(product, freeQuantity, 100));
     }
 
 }
