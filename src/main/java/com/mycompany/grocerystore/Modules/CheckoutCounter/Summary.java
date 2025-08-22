@@ -18,15 +18,20 @@ public class Summary {
     public HashMap<SellingUnit, Float> QuantityPerSeUSummary;
     public HashMap<SellingUnit, Float> TotalPricePerSeUSummary;
 
-    
+    public Summary(){
+        QuantitySummary = new HashMap<>();
+        TotalPriceSummary = new HashMap<>();
+
+        QuantityPerSeUSummary = new HashMap<>();
+        TotalPricePerSeUSummary = new HashMap<>();
+
+    }
     
     public void AddToSummaries(Item item) {
+
         AddToPerProductSummaries(item);
         AddToPerSeUSummaries(item);
     }
-    
-    
-    
     
     public void AddToPerProductSummaries(Item item) {
 
@@ -43,7 +48,7 @@ public class Summary {
         TotalPricePerSeUSummary.put(sellingUnit, collectiveLineTotal);
     }
     
-      public void AddToPerSeUSummaries(Item item) {
+    public void AddToPerSeUSummaries(Item item) {
 
         String code = item.Product.Code;
 

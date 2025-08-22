@@ -28,17 +28,16 @@ public class Transaction {
     public Summary DiscountedItemsSummary;
   
 
-    public Transaction() {
+    public Transaction(Inventory inventory) {
+        Inventory = inventory;
         Purchase = new Purchase();
         ItemsSummary = new Summary();
         DiscountedItemsSummary = new Summary();
+        SalesPromotion = new SalesPromotion();
     }
     
-    public void SetInventory(Inventory inventory){
-        Inventory = inventory;
-    }
     
-    public void SalesPromotion(SalesPromotion salesPromotion){
+    public void SetSalesPromotion(SalesPromotion salesPromotion){
         SalesPromotion = salesPromotion;
     }
     
@@ -55,20 +54,23 @@ public class Transaction {
         scan(code, 1);
     }
     
-    
     public void addToPurchase(Item item) {
         Purchase.add(item);
         GrandTotal += item.GetLineTotal();
         AddToSummary(item);
     }
-
-       
-       
     
     public void Finalize() throws InvalidProductException {
        ApplyDiscounts();
     }
  
+    
+    
+    
+    
+    
+    
+    
     public void AddToSummary(Item item) {
 
         if (item.DiscountPercent > 0) {
@@ -94,7 +96,7 @@ public class Transaction {
     
     public void ApplyBuyOneGetOneFree(Product product) {
         String code = product.Code;
-        addToPurchase(new Item(product, ItemsSummary.QuantitySummary.get(code) * 2, 100));
+        addToPurchase(new Item(product, ItemsSummary.QuantitySummary.get(code), 100));
     }
 
     public void ApplyBuyTwoGetOneFree(Product product) {
