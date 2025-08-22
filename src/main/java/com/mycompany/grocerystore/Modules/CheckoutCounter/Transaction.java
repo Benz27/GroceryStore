@@ -34,14 +34,13 @@ public class Transaction {
         ItemsSummary = new Summary();
         DiscountedItemsSummary = new Summary();
         SalesPromotion = new SalesPromotion();
+
     }
     
     
     public void SetSalesPromotion(SalesPromotion salesPromotion){
         SalesPromotion = salesPromotion;
     }
-    
-    
     
     
     

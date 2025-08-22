@@ -5,6 +5,7 @@
 package com.mycompany.grocerystore.Modules.CheckoutCounter;
 
 import com.mycompany.grocerystore.Entities.Product;
+import com.mycompany.grocerystore.Enumerators.SellingUnit;
 import java.util.ArrayList;
 
 /**
@@ -28,9 +29,13 @@ public class Purchase {
     }
     
     public void add(Item item){
+        
+        if(item.Product.SeU == SellingUnit.Piece){
+            item.Quantity = (int) item.Quantity;
+        }
+        
         Items.add(item);
         Summarize();
     }
-    
     
 }

@@ -24,6 +24,7 @@ public class StoreSetup {
         rice.Name = "Rice";
         rice.Price = 40;
         rice.Code = "1W";
+        rice.UnitOfMeasurement = "KG";
 
         Product cupcake = new Product();
         cupcake.Name = "Cupcake";

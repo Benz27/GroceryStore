@@ -14,6 +14,7 @@ public class Product {
     
     public String Name;
     public String Code;
+    public String UnitOfMeasurement;
     public SellingUnit SeU ;
     public float Price; 
 
